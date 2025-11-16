@@ -1,5 +1,6 @@
 package com.bd.Producer;
 
+import com.bd.Environments;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -31,21 +32,19 @@ public class CurrentWeatherProducer {
         LocalDateTime currentDateAndTime = LocalDateTime.now();
         String currentDate = currentDateAndTime.format(formatter);
         String locations = "London,UK|Paris,France|Tokyo,Japan|Cape Town,South Africa";
-//        return webClient.get()
-//                .uri(uriBuilder -> uriBuilder
-//                        .path("/timelinemulti")
-//                        .queryParam("key", Environments.weatherApi.getValue())
-//                        .queryParam("locations", locations)
-//                        .queryParam("datestart", currentDate)
-//                        .build())
-//                .retrieve()
-//                .bodyToMono(String.class)
-//                .block();
-        return new String(Files.readAllBytes(Paths.get("src/main/resources/mockData/currentWeatherMock.json")));
-
+        return webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/timelinemulti")
+                        .queryParam("key", Environments.weatherApi.getValue())
+                        .queryParam("locations", locations)
+                        .queryParam("datestart", currentDate)
+                        .build())
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
     }
 
-    @Scheduled(fixedRate = 6000)
+    @Scheduled(fixedRate = 180000000)
     private void sendData() throws IOException {
         String message = getWeatherData();
         kafkaTemplate.send("weather-logs", message);
